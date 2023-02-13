@@ -14,7 +14,7 @@ services:
         - ./Dockerfiles/php_src:/var/www
         - ./Dockerfiles/shared_data:/shared_data
         - ./BigData:/shared_data/BigData
-        - ./remoteDirectory:/shared_data/remoteDirectory
+        - ./remoteDirectory:/shared_data/remoteData
       networks:
         - serverClient
 
@@ -32,12 +32,11 @@ services:
         - ./Dockerfiles/php_src:/var/www
         - ./Dockerfiles/shared_data:/shared_data
         - ./BigData:/shared_data/BigData
-        - ./remoteDirectory:/shared_data/remoteDirectory
-      networks:
+        - ./remoteDirectory:/shared_data/remoteData
         - serverClient
 volumes:
   big_data:
-  remoteDirectory:
+  remoteData:
 
 networks:
   serverClient:
