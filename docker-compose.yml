@@ -7,7 +7,7 @@ services:
         context: ./Dockerfiles
         dockerfile: PHP_s_Dockerfile
       ports:
-        - '18888:80'
+        - '18887:80'
         #user: root
       restart: unless-stopped
       volumes:
@@ -15,8 +15,7 @@ services:
         - ./Dockerfiles/shared_data:/shared_data
         - ./BigData:/shared_data/BigData
         - ./remoteDirectory:/shared_data/remoteData
-      networks:
-        - serverClient
+
 
     php_mw_ask_geanny:
       container_name: php_mw_ask_geanny
@@ -33,10 +32,4 @@ services:
         - ./Dockerfiles/shared_data:/shared_data
         - ./BigData:/shared_data/BigData
         - ./remoteDirectory:/shared_data/remoteData
-        - serverClient
-volumes:
-  big_data:
-  remoteData:
 
-networks:
-  serverClient:
