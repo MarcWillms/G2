@@ -1,0 +1,43 @@
+version: '3'
+services:
+    php_mw_sensors:
+      container_name: php_mw_sensors
+      image: mwillms/my.php:1.0
+      build:
+        context: ./Dockerfiles
+        dockerfile: PHP_s_Dockerfile
+      ports:
+        - '18888:80'
+        #user: root
+      restart: unless-stopped
+      volumes:
+        - ./Dockerfiles/php_src:/var/www
+        - ./Dockerfiles/shared_data:/shared_data
+        - ./BigData:/shared_data/BigData
+        - ./remoteDirectory:/shared_data/remoteDirectory
+      networks:
+        - serverClient
+
+    php_mw_ask_geanny:
+      container_name: php_mw_ask_geanny
+      image: mwillms/my.php:1.0
+      build:
+        context: ./Dockerfiles
+        dockerfile: PHP_s_Dockerfile
+      ports:
+        - '18888:80'
+        #user: root
+      restart: unless-stopped
+      volumes:
+        - ./Dockerfiles/php_src:/var/www
+        - ./Dockerfiles/shared_data:/shared_data
+        - ./BigData:/shared_data/BigData
+        - ./remoteDirectory:/shared_data/remoteDirectory
+      networks:
+        - serverClient
+volumes:
+  big_data:
+  remoteDirectory:
+
+networks:
+  serverClient:
