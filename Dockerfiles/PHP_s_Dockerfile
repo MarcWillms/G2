@@ -1,1 +1,11 @@
+FROM php:8-apache-buster
+# php:8.2.2-zts-alpine3.16
+
+RUN apt-get update
+RUN apt-get install -y sudo nano
+RUN docker-php-ext-install mysqli pdo pdo_mysql
+#RUN php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
+COPY --from=composer/composer /usr/bin/composer /usr/bin/composer
+RUN alias composer='php /usr/bin/composer'
+RUN apt-get install -y dialog apt-utils
 
