@@ -1,8 +1,17 @@
 <?php
+echo "Hello World";die();
 define ("__KONFIGURATION", true);
-define ("__TEST", true);
-define ("__TEST_APPROVED", true);
-define ("__SANDBOX", true);
+if($_SERVER['SERVER_PORT'] && __KONFIGURATION){
+    $config= parse_ini_file('../php_src/'.$_SERVER['SERVER_PORT'].'config.ini', true);
+    if(!$config){
+        die(404);
+    }
+} else{
+    die(404);
+}
+var_dump($config);
+die();
+
 function shlog(mixed $data, string $context, string $react = 'log'):void{
         ob_start();
         if ($context) {

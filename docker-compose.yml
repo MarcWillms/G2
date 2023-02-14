@@ -13,8 +13,10 @@ services:
       volumes:
         - ./Dockerfiles/php_src:/var/www
         - ./Dockerfiles/shared_data:/shared_data
-        - ./bigData:/shared_data/bigData
-        - ./remoteData:/shared_data/remoteData
+        - ./big_data:/shared_data/big_data
+        - ./remote_data:/shared_data/remote_data
+      networks:
+        - my_network
 
 
     php_mw_ask_geanny:
@@ -30,6 +32,19 @@ services:
       volumes:
         - ./Dockerfiles/php_src:/var/www
         - ./Dockerfiles/shared_data:/shared_data
-        - ./bigData:/shared_data/bigData
-        - ./remoteData:/shared_data/remoteData
+        - ./big_data:/shared_data/big_data
+        - ./remote_data:/shared_data/remote_data
+      networks:
+        - my_network
+
+volumes:
+    shared_data:
+    big_data:
+    remote_data:
+
+networks:
+    my_network:
+
+
+
 
