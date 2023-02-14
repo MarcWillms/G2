@@ -13,8 +13,8 @@ services:
       volumes:
         - ./Dockerfiles/php_src:/var/www
         - ./Dockerfiles/shared_data:/shared_data
-        - ./big_data:/shared_data/big_data
-        - ./remote_data:/shared_data/remote_data
+        - ./Dockerfiles/shared_data/big_data:/shared_data/big_data
+        - ./Dockerfiles/shared_data/remote_data:/shared_data/remote_data
       networks:
         - my_network
 
@@ -32,8 +32,8 @@ services:
       volumes:
         - ./Dockerfiles/php_src:/var/www
         - ./Dockerfiles/shared_data:/shared_data
-        - ./big_data:/shared_data/big_data
-        - ./remote_data:/shared_data/remote_data
+        - ./Dockerfiles/shared_data/big_data:/shared_data/big_data
+        - ./Dockerfiles/shared_data/remote_data:/shared_data/remote_data
       networks:
         - my_network
 
