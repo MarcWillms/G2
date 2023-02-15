@@ -7,6 +7,7 @@ function sh_err_one_liner(mixed $data, string $react = 'error'):void{
 
 //License_lib
 define('LICENSE_PATH', '/shared_data/remote_data/license_data/');
+define('LICENSE_LOG_PATH', '/shared_data/remote_data/log_data/licenses');
 define('LICENSE_EXTENSION', '.lic');
 //DTO class to join data do a array data set by name and value, also to unjoin data from a array data set by name and value
 class myDTO{
@@ -55,7 +56,7 @@ class LicenseDTO extends myDTO{
     }
 
     final public function unjoin_licenseID():string{
-        return $this->unjoin('licenseID');
+        return (string) $this->unjoin('licenseID');
     }
 
     final public function join_licenseDataArray(array $licenseDataArray):void{
@@ -100,18 +101,17 @@ class LicenseChecker{
         try {
             $licenseID = $licenseDTO->unjoin_licenseID();
             $licenseDataArray = $licenseDTO->unjoin_licenseDataArray();
-            if (!self::checkLicenseExistsAlready($licenseID)) {
                 $fh = fopen(LICENSE_PATH . $licenseID . LICENSE_EXTENSION, 'wb');
                 flock($fh, LOCK_EX);
                     fwrite($fh, self::arr2ini($licenseDataArray) . PHP_EOL);
                 fclose($fh);
                 return true;
-            }
         } catch (Exception $e) {
             sh_err_one_liner($e->getMessage(), 'error');
         }
         return false;
     }
+
 
     private static function arr2ini(array $a,array $parent = array()):string{
         // https://stackoverflow.com/questions/17316873/convert-array-to-an-ini-file
@@ -149,18 +149,46 @@ function generateRandomString(string $pattern = '0123456789abcdefghijklmnopqrstu
     return $result;
 }
 
+function generateRandomLicenseString(string $pattern = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', int $length=16):string{
+    /* SOME CURL OPERATION TO GET LOAD FOR ALL ACTIVE MW LICENSE SERVER */
+    // set URL and other appropriate options to receive an array of load values
+//    $ch = curl_init("http://www.example.com/");
+//    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+//    curl_setopt($ch, CURLOPT_HEADER, 0);
+//    curl_exec($ch);
+//    curl_close($ch);
+//    $array= [0=>50,1=>53,2=>30,3=>20,4=>10,5=>11,6=>70,7=>80];
+//    // get the lowest load value and its key
+//    $min = min($array);
+//    $key = array_search($min, $array);
+
+
+    return generateRandomString($pattern, $length);
+}
+
+
+function generateLicenseString():string{
+    $licenseID='';
+    do{
+        if(!LicenseChecker::checkLicenseFormat($licenseID)) {
+            $licenseID = generateRandomLicenseString();
+        }
+    } while(LicenseChecker::checkLicenseExistsAlready($licenseID));
+    return $licenseID;
+}
+
+// get the lowest load value and its key
+function getMinKeyValuePair($array): array {
+    $min = min($array);
+    $key = array_search($min, $array);
+    return array($key=>$min);
+}
+
 function generateLicense(array $licenseDataArray):?licenseDTO{
     try {
         // do new licenses while there is no new or valid one
-        $licenseID='';
-        do{
-            if(!LicenseChecker::checkLicenseFormat($licenseID)) {
-                $licenseID = generateRandomString();
-            }
-        } while(LicenseChecker::checkLicenseExistsAlready($licenseID));
-
         $licenseDTO=new licenseDTO();
-        $licenseDTO->join_licenseID($licenseID);
+        $licenseDTO->join_licenseID(generateRandomLicenseString());
         $licenseDTO->join_licenseDataArray($licenseDataArray);
 
         if(LicenseChecker::setLicenseAvailable($licenseDTO)){
@@ -205,4 +233,37 @@ class License{
         $files = glob(LICENSE_PATH.'*'.LICENSE_EXTENSION); // get all file names
         return count($files);
     }
+
+    //update LicenseFile with merge from the existing array and the new array
+    public static function updateLicense(string $licenseID, array $newLicenseDataArray):bool{
+        try {
+            $licenseDTO=LicenseChecker::getLicenseAvailable($licenseID);
+            if($licenseDTO!==null){
+                $licenseDTO->join_licenseDataArray(array_merge($licenseDTO->unjoin_licenseDataArray(),$newLicenseDataArray));
+                return LicenseChecker::setLicenseAvailable($licenseDTO);
+            }
+        } catch (Exception $e) {
+            sh_err_one_liner($e->getMessage(), 'error');
+        }
+        return false;
+    }
 }
+//logs TimeDifference [totalGPU/ms], TimeDifference [totalCPU/ms], BytesSent, BytesReceived
+function accessLogger(string $licenseID,array $what_to_log): void{
+    $log = fopen(LICENSE_LOG_PATH . $licenseID.'.access.log', 'ab');
+    flock($log, LOCK_EX);
+    fwrite($log, implode(",",$what_to_log) . PHP_EOL);
+    fclose($log);
+}
+
+// Standard is between now and RequestTime by adding other values get for example the GPU calcTime
+function calcTimeDifferenceInMilliseconds(float $start=0.0, float $end=0.0): int{
+    if($start===0.0){
+        $start=$_SERVER['REQUEST_TIME_FLOAT'];
+    }
+    if ($end===0.0) {
+        $end = microtime(true);
+    }
+    return (int)($end - $start) * 1000?:1;
+}
+
